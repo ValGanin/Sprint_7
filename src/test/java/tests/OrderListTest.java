@@ -6,6 +6,7 @@ import io.qameta.allure.Description;
 import io.restassured.response.Response;
 import static steps.OrderSteps.*;
 import static org.hamcrest.Matchers.*;
+import static org.apache.http.HttpStatus.*;
 
 public class OrderListTest {
 
@@ -16,6 +17,6 @@ public class OrderListTest {
                 .then()
                 .extract()
                 .response();
-        r.then().statusCode(200).body("orders", notNullValue());
+        r.then().statusCode(SC_OK).body("orders", notNullValue());
     }
 }

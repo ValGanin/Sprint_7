@@ -7,6 +7,7 @@ import io.restassured.response.Response;
 import static steps.CourierSteps.*;
 import static org.hamcrest.Matchers.*;
 import io.qameta.allure.Description;
+import static org.apache.http.HttpStatus.*;
 
 public class CourierLoginTest {
     private CourierData courier;
@@ -27,7 +28,7 @@ public class CourierLoginTest {
     public void testLoginMissingLogin() {
         Response r = login(Map.of("login",courier.getLogin()));
         Assume.assumeTrue("Gateway Timeout (504) — сервис недоступен, пропускаем тест", r.statusCode() != 504);
-        r.then().statusCode(400)
+        r.then().statusCode(SC_BAD_REQUEST)
                 .body("message",containsString("Недостаточно данных"))
                 .extract();
     }
@@ -35,7 +36,7 @@ public class CourierLoginTest {
     @Description("Ошибка при отсутствии пароля для авторизации")
     public void testLoginMissingPassword() {
         Response r = login(Map.of("password", courier.getPassword()));
-        r.then().statusCode(400)
+        r.then().statusCode(SC_BAD_REQUEST)
                 .body("message",containsString("Недостаточно данных"))
                 .extract();
     }
@@ -43,7 +44,7 @@ public class CourierLoginTest {
     @Description("Ошибка при неверных логине или пароле")
     public void testLoginWrong() {
         Response r = login(Map.of("login",courier.getLogin(),"password","wrong"));
-        r.then().statusCode(404)
+        r.then().statusCode(SC_NOT_FOUND)
                 .body("message",containsString("Учетная запись не найдена"))
                 .extract();;
     }

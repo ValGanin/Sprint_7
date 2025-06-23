@@ -10,6 +10,7 @@ import io.qameta.allure.Description;
 import static org.junit.runners.Parameterized.*;
 import static steps.OrderSteps.*;
 import static org.hamcrest.Matchers.*;
+import static org.apache.http.HttpStatus.*;
 
 @RunWith(Parameterized.class)
 public class OrderCreateTest {
@@ -33,6 +34,6 @@ public class OrderCreateTest {
                 .then()
                 .extract()
                 .response();
-        r.then().statusCode(201).body("track",notNullValue());
+        r.then().statusCode(SC_CREATED).body("track",notNullValue());
     }
 }

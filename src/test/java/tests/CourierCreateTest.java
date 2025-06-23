@@ -6,6 +6,8 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.response.*;
 import org.junit.*;
 import utils.CourierData;
+
+import static org.apache.http.HttpStatus.*;
 import static steps.CourierSteps.*;
 import static org.hamcrest.Matchers.*;
 import io.qameta.allure.Description;
@@ -27,7 +29,7 @@ public class CourierCreateTest {
                 .then()
                 .extract()
                 .response();
-        r.then().statusCode(201).body("ok",equalTo(true));
+        r.then().statusCode(SC_CREATED).body("ok",equalTo(true));
         courierId = login(courier);
     }
     @Test
@@ -39,18 +41,32 @@ public class CourierCreateTest {
                 .extract()
                 .response();
         courierId = login(courier);
-        create(courier).then().statusCode(409).body("message",containsString("Этот логин уже используется. Попробуйте другой.")).
+        create(courier).then().statusCode(SC_CONFLICT).body("message",containsString("Этот логин уже используется. Попробуйте другой.")).
                 extract().response();
     }
     @Test
-    @Description("Проверка обязательных полей при создании курьера")
+    @Description("Проверка передачи только обязательного поля логина при создании курьера")
     public void testMissingFields() {
         Map<String, String> body = Map.of(
                 "login", courier.getLogin()
         );
         Response r = create(body);
         r.then()
-                .statusCode(400)
+                .statusCode(SC_BAD_REQUEST)
+                .body("message", containsString("Недостаточно данных"))
+                .extract()
+                .response();
+    }
+    @Test
+    @Description("Проверка на отустствие обязательного поля логин при создании курьера")
+    public void testMissingLoginFields() {
+        Map<String, String> body = Map.of(
+                "password", courier.getPassword(),
+                "firstName", courier.getFirstName()
+        );
+        Response r = create(body);
+        r.then()
+                .statusCode(SC_BAD_REQUEST)
                 .body("message", containsString("Недостаточно данных"))
                 .extract()
                 .response();
